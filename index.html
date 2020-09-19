@@ -20,7 +20,7 @@ a {
 }
 
 @media only screen and (max-width: 600px) {
- 
+
   .center {
 	  margin: auto;
 	  width: 100%;
@@ -34,6 +34,12 @@ tr.row0 {
 }
 tr.row1 {
 	background-color: #333;
+}
+tr.dead {
+  opacity: 0.2;
+}
+tr.alive {
+  opacity: 1.0;
 }
 td {
 	font: small-caps bold 1em/1.5em Georgia, serif;
@@ -65,6 +71,10 @@ button > img {
 	width: 3em;
 	height: 3em;
 }
+.groupheader{
+  background-color: #666;
+  text-align: center;
+}
 th > input {
   padding: 12px 20px;
   margin: 1.5em 0;
@@ -87,56 +97,149 @@ th.title {
 }
 </style>
 <script>
-var n = 0;
-var nameTrackers = [];
-var hpTrackers = [];
-var fullHP = [];
+class Unit {
+  constructor(name, id, hp, group = " default") {
+    this.name = name;
+    this.id = id;
+    this.group = group;
+    this.fullHP = hp;
+    this.hp = hp;
+  }
 
-function reduceHP(elId, n, amount) {
-	if(hpTrackers[n]>0) {
-		hpTrackers[n] -= amount;
-		document.getElementById(elId).innerHTML = hpTrackers[n] + " HP";
-	}
-	if(hpTrackers[n]==0) {
-		document.getElementById(elId).parentElement.style.opacity  = "0.2";
-	}
+  reduceHP(amount) {
+    if(this.hp - amount >= 0)
+      this.hp -= amount;
+  }
+
+  resetHP() {
+    this.hp = this.fullHP;
+  }
 }
 
+class Roster {
+  constructor() {
+    this.units = [];
+  }
+
+  addUnit(unit) {
+    this.units.push(unit);
+  }
+
+  nextUnitId(name) {
+    var id = 1;
+    var unit;
+    for(unit of this.units) {
+      if(unit.name === name)
+        id += 1;
+    }
+    return id;
+  }
+
+  reduceHP(name, id, amount) {
+    console.log(unit.name + unit.id);
+    for(unit of this.units) {
+      if(unit.name === name && unit.id == id) {
+        unit.reduceHP(amount);
+      }
+    }
+  }
+
+  resetHP() {
+    for(unit of this.units)
+      unit.resetHP();
+  }
+
+  get getUnitsByGroup() {
+    var byGroup = new Map();
+    var unit;
+    for(unit of this.units) {
+      if(byGroup.has(unit.group)) {
+        byGroup.get(unit.group).push(unit);
+      } else {
+        byGroup.set(unit.group, [unit]);
+      }
+    }
+    return byGroup;
+  }
+
+  get getUniqueGroups() {
+    var groups = [];
+    var unit;
+    for(unit of this.units) {
+      if(!groups.includes(unit.group))
+        groups.push(unit.group);
+    }
+    return groups;
+  }
+
+  get getNames() {
+    var names = [];
+    var unit;
+    for(unit of this.units) {
+      names.push(unit.name);
+    }
+    return names;
+  }
+
+  get getHPs() {
+    var hps = [];
+    var unit;
+    for(unit of this.units) {
+      hps.push(unit.hp);
+    }
+    return hps;
+  }
+
+  get getGroups() {
+    var groups = [];
+    var unit;
+    for(unit of this.units) {
+      groups.push(unit.group);
+    }
+    return groups;
+  }
+}
+
+var roster = new Roster();
 
 
 function updateTable() {
 	document.getElementById("figures").innerHTML = "";
-	for(i = 0; i < nameTrackers.length; i++) {
-		document.getElementById("figures").innerHTML += "<tr class='row"+i%2+"'>"+
-			"<td class='name'>" + nameTrackers[i] + "</td>"+
-			"<td class='hp' id='"+nameTrackers[i]+"-"+i+"'>" + hpTrackers[i] + " HP</td>"+
-			"<td class='button'><button onclick=\"reduceHP('"+nameTrackers[i]+"-"+i+"', "+i+", -1)\"><img src='health-increase.png'/></button></td>" +
-			"<td class='button'><button onclick=\"reduceHP('"+nameTrackers[i]+"-"+i+"', "+i+", 1)\"><img src='health-decrease.png'/></button></td>" +
+  let unitsByGroup = roster.getUnitsByGroup;
+	for(group of roster.getUniqueGroups.sort()) {
+    if(!(group === " default")) {
+      document.getElementById("figures").innerHTML +=
+        "<tr class='groupheader'><td colspan='4'>" + group + "</td></tr>";
+    }
+    var r = 0;
+    for(unit of unitsByGroup.get(group)) {
+      document.getElementById("figures").innerHTML +=
+      "<tr class='row"+r%2+" "+(unit.hp===0? "dead" : "alive")+"'>"+
+			"<td class='name'>" + unit.name + unit.id + "</td>"+
+			"<td class='hp'>" + unit.hp + " HP</td>"+
+			"<td class='button'><button onclick=\"reduceHP('"+unit.name+"', '"+unit.id+"', -1)\"><img src='health-increase.png'/></button></td>" +
+			"<td class='button'><button onclick=\"reduceHP('"+unit.name+"', '"+unit.id+"', 1)\"><img src='health-decrease.png'/></button></td>" +
 			"</tr>";
+      r += 1;
+    }
 	}
 }
 
-function addCharacter(name, hp) {
-	if(!(name === "")) {
-		var cCount = 1;
-		for(i=0; i<nameTrackers.length; i++) {
-			if(nameTrackers[i] === name) {
-				nameTrackers[i] = name + " " + cCount;
-				cCount += 1;
-			} else if(nameTrackers[i].startsWith(name+" ")) {
-				cCount += 1;
-			}
-		}
-		if(cCount > 1)
-			nameTrackers.push(name + " " + cCount);
-		else
-			nameTrackers.push(name);
-		
-		hpTrackers.push(hp);
-		fullHP.push(hp);
-		updateTable();
-		n += 1;
-	}
+
+function reduceHP(name, id, amount) {
+  roster.reduceHP(name, id, amount);
+  updateTable();
+}
+
+function addCharacter(name, hp, group) {
+  if(!(name === "")) {
+    if(!(group === "")) {
+      roster.addUnit(new Unit(name, roster.nextUnitId(name), hp, group));
+    } else {
+      roster.addUnit(new Unit(name, roster.nextUnitId(name), hp));
+    }
+  }
+  updateTable();
 }
 
 function copyToClipboard(text) {
@@ -152,23 +255,18 @@ function copyToClipboard(text) {
 function copyURL() {
 	let wl = window.location;
 	var baseURL = wl.protocol+wl.host+wl.pathname;
-	copyToClipboard(baseURL + "?" + "names="+encodeURIComponent(nameTrackers)+"&hps="+encodeURIComponent(hpTrackers));
+	copyToClipboard(baseURL + "?" + "names="+roster.getNames.map(encodeURIComponent)+"&groups="+roster.getGroups.map(encodeURIComponent)+"&hps="+roster.getHPs.map(encodeURIComponent));
 	window.alert("URL copied!");
 }
 
 function fullReset() {
-	nameTrackers = [];
-	hpTrackers = [];
-	n = 0;
-	document.getElementById("figures").innerHTML = "";
+	roster = new Roster();
+  updateTable();
 }
 
 function resetHP() {
-	hpTrackers = [...fullHP];
-	for(i=0; i<n; i++) {
-		document.getElementById(nameTrackers[i]+"-"+i).parentElement.style.opacity  = "1";
-		document.getElementById(nameTrackers[i]+"-"+i).innerHTML = hpTrackers[i] + " HP";
-	}
+	roster.resetHP();
+  updateTable();
 }
 </script>
 </head>
@@ -184,7 +282,8 @@ function resetHP() {
 		<tr>
 		<th class="name"><input id="newName" type="text" placeholder="Unit name..." /></th>
 		<th class="hp"><input id="newHP" type="number" value="10" /></th>
-		<th class="button" colspan="2"><button class="add" onclick="addCharacter(document.getElementById('newName').value, document.getElementById('newHP').value)" type="submit"><img src='up-card.png'/></button></th><th></th>
+    <th class="group"><input id="newGroup" type="text" placeholder="Group name..." /></th>
+		<th class="button"><button class="add" onclick="addCharacter(document.getElementById('newName').value, document.getElementById('newHP').value, document.getElementById('newGroup').value)" type="submit"><img src='up-card.png'/></button></th><th></th>
 		</form>
 	</tr>
 	</tbody>
@@ -193,18 +292,19 @@ function resetHP() {
 	<script>
 	let searchParams = new URLSearchParams(window.location.search)
 
-	if(searchParams.has('names') && searchParams.has('hps')) {
+	if(searchParams.has('names') && searchParams.has('groups') && searchParams.has('hps')) {
 		var names = searchParams.get('names').split(',')
+    var groups = searchParams.get('groups').split(',')
 		var hps = searchParams.get('hps').split(',').map(Number)
-		if(names.length === hps.length) {
+		if(names.length == hps.length && hps.length == groups.length) {
 			for(i in names) {
-				addCharacter(names[i], hps[i]);
+				addCharacter(names[i], hps[i], groups[i]);
 			}
 		}
 	}
 	</script>
 	&nbsp;
-	
+
 	<table class="ctable">
 	<tbody>
 	<tr>
@@ -219,7 +319,7 @@ function resetHP() {
 </div>
 
 <div class="center">
-	<p>Copyright Mark Blokpoel. Icons by <a href="https://game-icons.net/">https://game-icons.net/</a>
+	<p>v0.2.0</p><p>Copyright Mark Blokpoel. Icons by <a href="https://game-icons.net/">https://game-icons.net/</a>
 	<a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
 </div>
 </body>
