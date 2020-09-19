@@ -14,7 +14,7 @@ View tracker here: [https://markblokpoel.github.io/hptracker/](https://markblokp
   - Go to this help document.
 
 Example roster:
-[https://markblokpoel.github.io/hptracker/?names=Awesome%20leader,Hero,Minion,Minion,Minion&hps=15,20,5,5,5](https://markblokpoel.github.io/hptracker/?names=Awesome%20leader,Hero,Minion,Minion,Minion&hps=15,20,5,5,5)
+[https://markblokpoel.github.io/hptracker/?names=Awesome%20leader,Hero,Minion,Minion,Minion&groups=Main,Main,Side,Side&hps=15,20,5,5,5](https://markblokpoel.github.io/hptracker/?names=Awesome%20leader,Hero,Minion,Minion,Minion&groups=Main,Main,Side,Side&hps=15,20,5,5,5)
 
 
 ## Copyrights
