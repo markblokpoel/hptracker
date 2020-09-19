@@ -152,7 +152,7 @@ function copyToClipboard(text) {
 function copyURL() {
 	let wl = window.location;
 	var baseURL = wl.protocol+wl.host+wl.pathname;
-	copyToClipboard(baseURL + "?names="+nameTrackers+"&hps="+hpTrackers);
+	copyToClipboard(baseURL + "?" + "names="+encodeURIComponent(nameTrackers)+"&hps="+encodeURIComponent(hpTrackers));
 	window.alert("URL copied!");
 }
 
