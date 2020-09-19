@@ -1,0 +1,143 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Damage Tracker</title>
+<style>
+body {
+	background-color: #000;
+	color: #fff;
+}
+
+.ctable {
+	margin-left: auto;
+	margin-right: auto;
+	border-collapse: collapse;
+}
+tr.row0 {
+}
+tr.row1 {
+	background-color: #333;
+}
+td {
+	font: small-caps bold 2em/2.5em Georgia, serif;
+}
+td.name{
+	padding-right: .5em;
+	padding-left: .5em;
+}
+td.hp {
+	text-align: right;
+	padding-left: 1em;
+	padding-right: .5em;
+	padding-left: .5em;
+}
+td.button {
+	padding-right: .5em;
+	padding-left: .5em;
+}
+button {
+	background-color: #000;
+	border: 3px solid #fff;
+	border-radius: 1em;
+	padding: 2px;
+}
+button > img {
+	width: 4em;
+	height: 4em;
+}
+td > input {
+  padding: 12px 20px;
+  margin: 8px 0;
+  box-sizing: border-box;
+}
+td.name > input {
+  width: 20em;
+}
+td.hp > input {
+  width: 6em;
+}
+#add {
+	margin-left: auto;
+	margin-right: auto;
+}
+</style>
+<script>
+var n = 0;
+var nameTrackers = [];
+var hpTrackers = [];
+
+function reduceHP(elId, n) {
+	if(hpTrackers[n]>0) {
+		hpTrackers[n] -= 1;
+		document.getElementById(elId).innerHTML = hpTrackers[n] + "HP";
+	}
+	if(hpTrackers[n]==0) {
+		document.getElementById(elId).parentElement.style.opacity  = "0.2";
+	}
+}
+
+function addCharacter(name, hp) {
+	nameTrackers.push(name);
+	hpTrackers.push(hp);
+	document.getElementById("figures").innerHTML += "<tr class='row"+n%2+"'>"+
+		"<td class='name'>" + name + "</td>"+
+		"<td  class='hp' id='"+name+n+"'>" + hpTrackers[n] + "HP</td>"+
+		"<td class='button'><button onclick=\"reduceHP('"+name+n+"', "+n+")\"><img src='bleeding-wound.png'/></button></td>" +
+		"</tr>";
+	n += 1;
+}
+
+function copyToClipboard(text) {
+  const listener = function(ev) {
+    ev.preventDefault();
+    ev.clipboardData.setData('text/plain', text);
+  };
+  document.addEventListener('copy', listener);
+  document.execCommand('copy');
+  document.removeEventListener('copy', listener);
+}
+
+function copyURL() {
+	let wl = window.location;
+	var baseURL = wl.protocol+"://"+wl.host+"/"+wl.pathname;
+	copyToClipboard(baseURL + "?names="+nameTrackers+"&hps="+hpTrackers);
+}
+</script>
+</head>
+<body>
+
+<table id="figures" class="ctable"></table>
+
+<script>
+let searchParams = new URLSearchParams(window.location.search)
+
+if(searchParams.has('names') && searchParams.has('hps')) {
+	var names = searchParams.get('names').split(',')
+	var hps = searchParams.get('hps').split(',').map(Number)
+	if(names.length === hps.length) {
+		for(i = 0; i < names.length; i++) {
+			addCharacter(names[i], hps[i]);
+		}
+	}
+}
+</script>
+&nbsp;
+<form onsubmit="return false">
+<table class="ctable">
+<tr>
+	<td class="name"><input id="newName" type="text" /></td>
+	<td class="hp"><input id="newHP" type="number" /></td>
+	<td class="button"><button class="add" onclick="addCharacter(document.getElementById('newName').value, document.getElementById('newHP').value)" type="submit"><img src='up-card.png'/></button></td>
+</tr>
+</table>
+</form>
+&nbsp;
+<table class="ctable">
+<tr>
+	<td><button class="add" onclick="copyURL()" type="submit"><img src='wireframe-globe.png'/></button></td>
+</tr>
+</table>
+
+</body>
+</html>
