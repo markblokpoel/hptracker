@@ -106,7 +106,7 @@ function reduceHP(elId, n, amount) {
 
 function updateTable() {
 	document.getElementById("figures").innerHTML = "";
-	for(i = 0; i <= n; i++) {
+	for(i = 0; i < nameTrackers.length; i++) {
 		document.getElementById("figures").innerHTML += "<tr class='row"+i%2+"'>"+
 			"<td class='name'>" + nameTrackers[i] + "</td>"+
 			"<td class='hp' id='"+nameTrackers[i]+"-"+i+"'>" + hpTrackers[i] + "HP</td>"+
@@ -151,7 +151,7 @@ function copyToClipboard(text) {
 
 function copyURL() {
 	let wl = window.location;
-	var baseURL = wl.protocol+"://"+wl.host+"/"+wl.pathname;
+	var baseURL = wl.protocol+wl.host+wl.pathname;
 	copyToClipboard(baseURL + "?names="+nameTrackers+"&hps="+hpTrackers);
 	window.alert("URL copied!");
 }
@@ -197,7 +197,7 @@ function resetHP() {
 		var names = searchParams.get('names').split(',')
 		var hps = searchParams.get('hps').split(',').map(Number)
 		if(names.length === hps.length) {
-			for(i = 0; i < names.length; i++) {
+			for(i in names) {
 				addCharacter(names[i], hps[i]);
 			}
 		}
