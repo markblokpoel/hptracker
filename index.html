@@ -95,7 +95,7 @@ var fullHP = [];
 function reduceHP(elId, n, amount) {
 	if(hpTrackers[n]>0) {
 		hpTrackers[n] -= amount;
-		document.getElementById(elId).innerHTML = hpTrackers[n] + "HP";
+		document.getElementById(elId).innerHTML = hpTrackers[n] + " HP";
 	}
 	if(hpTrackers[n]==0) {
 		document.getElementById(elId).parentElement.style.opacity  = "0.2";
@@ -109,7 +109,7 @@ function updateTable() {
 	for(i = 0; i < nameTrackers.length; i++) {
 		document.getElementById("figures").innerHTML += "<tr class='row"+i%2+"'>"+
 			"<td class='name'>" + nameTrackers[i] + "</td>"+
-			"<td class='hp' id='"+nameTrackers[i]+"-"+i+"'>" + hpTrackers[i] + "HP</td>"+
+			"<td class='hp' id='"+nameTrackers[i]+"-"+i+"'>" + hpTrackers[i] + " HP</td>"+
 			"<td class='button'><button onclick=\"reduceHP('"+nameTrackers[i]+"-"+i+"', "+i+", -1)\"><img src='health-increase.png'/></button></td>" +
 			"<td class='button'><button onclick=\"reduceHP('"+nameTrackers[i]+"-"+i+"', "+i+", 1)\"><img src='health-decrease.png'/></button></td>" +
 			"</tr>";
@@ -167,7 +167,7 @@ function resetHP() {
 	hpTrackers = [...fullHP];
 	for(i=0; i<n; i++) {
 		document.getElementById(nameTrackers[i]+"-"+i).parentElement.style.opacity  = "1";
-		document.getElementById(nameTrackers[i]+"-"+i).innerHTML = hpTrackers[i] + "HP";
+		document.getElementById(nameTrackers[i]+"-"+i).innerHTML = hpTrackers[i] + " HP";
 	}
 }
 </script>
