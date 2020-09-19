@@ -5,12 +5,15 @@
 View tracker here: [https://markblokpoel.github.io/hptracker/](https://markblokpoel.github.io/hptracker/).
 
 ## Tutorial
-<button style="background-color: #000;border: 3px solid #fff;border-radius: 1em;padding: 2px;"><img width="3em" height="3em" src="https://markblokpoel.github.io/hptracker/health-increase.png" /></button>
-<img width="3em" height="3em" style="background-color: #000;border: 3px solid #fff;border-radius: 1em;padding: 2px;" src="https://markblokpoel.github.io/hptracker/health-decrease.png" />
-<img width="3em" height="3em" style="background-color: #000;border: 3px solid #fff;border-radius: 1em;padding: 2px;" src="https://markblokpoel.github.io/hptracker/scroll-unfurled.png" />
-<img width="3em" height="3em" style="background-color: #000;border: 3px solid #fff;border-radius: 1em;padding: 2px;" src="https://markblokpoel.github.io/hptracker/anticlockwise-rotation.png" />
-<img width="3em" height="3em" style="background-color: #000;border: 3px solid #fff;border-radius: 1em;padding: 2px;" src="https://markblokpoel.github.io/hptracker/wireframe-globe.png" />
+- Add units using the text box and HP input. You can press enter or use the button to confirm. Units with the same name automatically have numbers added.
+- Add or subtract 1 HP using the buttons on the right of the unit. HP cannot go below 0.
+- The bottom three buttons allow you to:
+  - Start a new roster
+  - Reset HP to starting values
+  - Copy the roster URL. Bookmark this URL to save your roster.
 
+Example roster:
+[https://markblokpoel.github.io/hptracker/?names=Awesome%20leader,Hero,Minion,Minion,Minion&hps=15,20,5,5,5](https://markblokpoel.github.io/hptracker/?names=Awesome%20leader,Hero,Minion,Minion,Minion&hps=15,20,5,5,5)
 
 
 ## Copyrights
