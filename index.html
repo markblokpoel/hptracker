@@ -102,6 +102,7 @@ function copyURL() {
 	let wl = window.location;
 	var baseURL = wl.protocol+"://"+wl.host+"/"+wl.pathname;
 	copyToClipboard(baseURL + "?names="+nameTrackers+"&hps="+hpTrackers);
+	window.alert("URL copied!");
 }
 </script>
 </head>
