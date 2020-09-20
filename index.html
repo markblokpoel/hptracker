@@ -76,20 +76,23 @@ button > img {
   text-align: center;
 }
 th > input {
-  padding: 12px 20px;
-  margin: 1.5em 0;
+  padding: 1.5em 1.5em;
+  margin: .5em 0 0 0;
   box-sizing: border-box;
 }
 th.name {
-  width: 70%;
+  padding-top: 1em;
 }
 th.hp {
-  width: 30%;
+  padding-top: 1em;
 }
 th.name > input {
   width: 100%;
 }
 th.hp > input {
+  width: 100%;
+}
+th.group > input {
   width: 100%;
 }
 th.title {
@@ -114,6 +117,10 @@ class Unit {
   resetHP() {
     this.hp = this.fullHP;
   }
+
+  get uniqueName() {
+    return this.name + " " + this.id;
+  }
 }
 
 class Roster {
@@ -133,6 +140,16 @@ class Roster {
         id += 1;
     }
     return id;
+  }
+
+  isUnique(unit) {
+    var unique = true;
+    var other;
+    for(other of this.units) {
+      if(unit != other && unit.name === other.name)
+        unique = false;
+    }
+    return unique;
   }
 
   reduceHP(name, id, amount) {
@@ -170,6 +187,16 @@ class Roster {
         groups.push(unit.group);
     }
     return groups;
+  }
+
+  get getUniqueNames() {
+    var names = [];
+    var unit;
+    for(unit of this.units) {
+      if(!names.includes(unit.name))
+        names.push(unit.name);
+    }
+    return names;
   }
 
   get getNames() {
@@ -215,7 +242,7 @@ function updateTable() {
     for(unit of unitsByGroup.get(group)) {
       document.getElementById("figures").innerHTML +=
       "<tr class='row"+r%2+" "+(unit.hp===0? "dead" : "alive")+"'>"+
-			"<td class='name'>" + unit.name + unit.id + "</td>"+
+			"<td class='name'>" + (roster.isUnique(unit)? unit.name : unit.uniqueName) + "</td>"+
 			"<td class='hp'>" + unit.hp + " HP</td>"+
 			"<td class='button'><button onclick=\"reduceHP('"+unit.name+"', '"+unit.id+"', -1)\"><img src='health-increase.png'/></button></td>" +
 			"<td class='button'><button onclick=\"reduceHP('"+unit.name+"', '"+unit.id+"', 1)\"><img src='health-decrease.png'/></button></td>" +
@@ -223,6 +250,14 @@ function updateTable() {
       r += 1;
     }
 	}
+
+  document.getElementById("names").innerHTML = "";
+  for(name of roster.getUniqueNames.sort())
+    document.getElementById("names").innerHTML += "<option value='"+name+"'>";
+
+  document.getElementById("groups").innerHTML = "";
+  for(group of roster.getUniqueGroups.sort())
+    document.getElementById("groups").innerHTML += "<option value='"+group+"'>";
 }
 
 
@@ -280,10 +315,14 @@ function resetHP() {
 	<tbody>
 		<form onsubmit="return false">
 		<tr>
-		<th class="name"><input id="newName" type="text" placeholder="Unit name..." /></th>
-		<th class="hp"><input id="newHP" type="number" value="10" /></th>
-    <th class="group"><input id="newGroup" type="text" placeholder="Group name..." /></th>
-		<th class="button"><button class="add" onclick="addCharacter(document.getElementById('newName').value, document.getElementById('newHP').value, document.getElementById('newGroup').value)" type="submit"><img src='up-card.png'/></button></th><th></th>
+		  <th class="name" colspan="2"><input id="newName" list="names" placeholder="Unit name..." /></th>
+		  <th class="hp" colspan="2"><input id="newHP" type="number" value="10" /></th>
+    </tr><tr>
+      <th class="group" colspan="2"><input id="newGroup" list="groups" placeholder="Group name..." /></th>
+		  <th class="button" colspan="2"><button class="add" onclick="addCharacter(document.getElementById('newName').value, document.getElementById('newHP').value, document.getElementById('newGroup').value)" type="submit"><img src='up-card.png'/></button></th>
+    </tr>
+    <datalist id="names"></datalist>
+    <datalist id=groups></datalist>
 		</form>
 	</tr>
 	</tbody>
@@ -319,7 +358,7 @@ function resetHP() {
 </div>
 
 <div class="center">
-	<p>v0.2.0</p><p>Copyright Mark Blokpoel. Icons by <a href="https://game-icons.net/">https://game-icons.net/</a>
+	<p>v0.2.1</p><p>Copyright Mark Blokpoel. Icons by <a href="https://game-icons.net/">https://game-icons.net/</a>
 	<a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
 </div>
 </body>
