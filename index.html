@@ -71,6 +71,18 @@ button > img {
 	width: 3em;
 	height: 3em;
 }
+button.delete {
+	background-color: #000;
+	border: 1px solid #fff;
+	border-radius: .5em;
+	padding: 2px;
+  opacity: 0.5;
+  margin-left: 2em;
+}
+button.delete > img {
+  width: 1.5em;
+  height: 1.5em;
+}
 .groupheader{
   background-color: #666;
   text-align: center;
@@ -166,6 +178,12 @@ class Roster {
       unit.resetHP();
   }
 
+  removeUnit(filterName, filterId) {
+    this.units = this.units.filter(function(unit){
+      return !(unit.name === filterName && unit.id == filterId);
+    });
+  }
+
   get getUnitsByGroup() {
     var byGroup = new Map();
     var unit;
@@ -236,16 +254,19 @@ function updateTable() {
 	for(group of roster.getUniqueGroups.sort()) {
     if(!(group === " default")) {
       document.getElementById("figures").innerHTML +=
-        "<tr class='groupheader'><td colspan='4'>" + group + "</td></tr>";
+        "<tr class='groupheader'><td colspan='5'>" + group + "</td></tr>";
     }
     var r = 0;
     for(unit of unitsByGroup.get(group)) {
       document.getElementById("figures").innerHTML +=
       "<tr class='row"+r%2+" "+(unit.hp===0? "dead" : "alive")+"'>"+
-			"<td class='name'>" + (roster.isUnique(unit)? unit.name : unit.uniqueName) + "</td>"+
+			"<td class='name'>" + (roster.isUnique(unit)? unit.name : unit.uniqueName) +
+      "<sub><button class='delete' onclick=\"removeUnit('"+unit.name+"', '"+unit.id+"')\"><img src='trash-can.png'/></button></sub>" +
+      "</td>"+
 			"<td class='hp'>" + unit.hp + " HP</td>"+
 			"<td class='button'><button onclick=\"reduceHP('"+unit.name+"', '"+unit.id+"', -1)\"><img src='health-increase.png'/></button></td>" +
 			"<td class='button'><button onclick=\"reduceHP('"+unit.name+"', '"+unit.id+"', 1)\"><img src='health-decrease.png'/></button></td>" +
+      // "<td class='button'><button onclick=\"removeUnit('"+unit.name+"', '"+unit.id+"')\"><img src='trash-can.png'/></button></td>" +
 			"</tr>";
       r += 1;
     }
@@ -274,6 +295,11 @@ function addCharacter(name, hp, group) {
       roster.addUnit(new Unit(name, roster.nextUnitId(name), hp));
     }
   }
+  updateTable();
+}
+
+function removeUnit(name, id) {
+  roster.removeUnit(name, id);
   updateTable();
 }
 
@@ -316,7 +342,7 @@ function resetHP() {
 		<form onsubmit="return false">
 		<tr>
 		  <th class="name" colspan="2"><input id="newName" list="names" placeholder="Unit name..." /></th>
-		  <th class="hp" colspan="2"><input id="newHP" type="number" value="10" /></th>
+		  <th class="hp" colspan="3"><input id="newHP" type="number" value="10" /></th>
     </tr><tr>
       <th class="group" colspan="2"><input id="newGroup" list="groups" placeholder="Group name..." /></th>
 		  <th class="button" colspan="2"><button class="add" onclick="addCharacter(document.getElementById('newName').value, document.getElementById('newHP').value, document.getElementById('newGroup').value)" type="submit"><img src='up-card.png'/></button></th>
