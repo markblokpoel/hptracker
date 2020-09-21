@@ -66,29 +66,31 @@ button {
 	border: 3px solid #fff;
 	border-radius: 1em;
 	padding: 2px;
+  vertical-align: top;
 }
 button > img {
-	width: 3em;
-	height: 3em;
+	width: 2em;
+	height: 2em;
 }
 button.delete {
-	background-color: #000;
-	border: 1px solid #fff;
-	border-radius: .5em;
-	padding: 2px;
+	background-color: transparent;
+	border: 0px;
+	padding: 0px;
   opacity: 0.5;
-  margin-left: 2em;
+  margin-right: 1em;
 }
 button.delete > img {
   width: 1.5em;
   height: 1.5em;
 }
-.groupheader{
+tr.groupheader {
   background-color: #666;
+}
+td.title {
   text-align: center;
 }
 th > input {
-  padding: 1.5em 1.5em;
+  padding: 1em 1em;
   margin: .5em 0 0 0;
   box-sizing: border-box;
 }
@@ -108,7 +110,8 @@ th.group > input {
   width: 100%;
 }
 th.title {
-	font: small-caps bold 2em/2.5em Georgia, serif;
+	font: small-caps bold 2em/1.5em Georgia, serif;
+  text-align: center;
 }
 </style>
 <script>
@@ -184,6 +187,12 @@ class Roster {
     });
   }
 
+  removeGroup(groupName) {
+    this.units = this.units.filter(function(unit){
+      return !(unit.group === groupName);
+    });
+  }
+
   get getUnitsByGroup() {
     var byGroup = new Map();
     var unit;
@@ -254,19 +263,19 @@ function updateTable() {
 	for(group of roster.getUniqueGroups.sort()) {
     if(!(group === " default")) {
       document.getElementById("figures").innerHTML +=
-        "<tr class='groupheader'><td colspan='5'>" + group + "</td></tr>";
+        "<tr class='groupheader'>"+
+        "<td class='title' colspan='5'>" +
+        "<button class='delete' onclick=\"removeGroup('"+group+"')\"><img src='trash-can.png'/></button>" +
+        group + "</td></tr>";
     }
     var r = 0;
     for(unit of unitsByGroup.get(group)) {
       document.getElementById("figures").innerHTML +=
       "<tr class='row"+r%2+" "+(unit.hp===0? "dead" : "alive")+"'>"+
-			"<td class='name'>" + (roster.isUnique(unit)? unit.name : unit.uniqueName) +
-      "<sub><button class='delete' onclick=\"removeUnit('"+unit.name+"', '"+unit.id+"')\"><img src='trash-can.png'/></button></sub>" +
-      "</td>"+
+      "<td class='name'><button class='delete' onclick=\"removeUnit('"+unit.name+"', '"+unit.id+"')\"><img src='trash-can.png'/></button> " + (roster.isUnique(unit)? unit.name : unit.uniqueName) + "</td>"+
 			"<td class='hp'>" + unit.hp + " HP</td>"+
 			"<td class='button'><button onclick=\"reduceHP('"+unit.name+"', '"+unit.id+"', -1)\"><img src='health-increase.png'/></button></td>" +
 			"<td class='button'><button onclick=\"reduceHP('"+unit.name+"', '"+unit.id+"', 1)\"><img src='health-decrease.png'/></button></td>" +
-      // "<td class='button'><button onclick=\"removeUnit('"+unit.name+"', '"+unit.id+"')\"><img src='trash-can.png'/></button></td>" +
 			"</tr>";
       r += 1;
     }
@@ -300,6 +309,11 @@ function addCharacter(name, hp, group) {
 
 function removeUnit(name, id) {
   roster.removeUnit(name, id);
+  updateTable();
+}
+
+function removeGroup(name) {
+  roster.removeGroup(name);
   updateTable();
 }
 
@@ -384,7 +398,7 @@ function resetHP() {
 </div>
 
 <div class="center">
-	<p>v0.2.1</p><p>Copyright Mark Blokpoel. Icons by <a href="https://game-icons.net/">https://game-icons.net/</a>
+	<p>v0.2.3</p><p>Copyright Mark Blokpoel. Icons by <a href="https://game-icons.net/">https://game-icons.net/</a>
 	<a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
 </div>
 </body>
