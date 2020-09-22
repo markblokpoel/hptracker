@@ -19,7 +19,7 @@ a {
 	color: #fff;
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 800px) {
 
   .center {
 	  margin: auto;
@@ -55,6 +55,21 @@ td.hp {
 	padding-left: 1em;
 	padding-right: .5em;
 	padding-left: .5em;
+}
+td.hp-low {
+	color: #c51b7d;
+}
+td.hp-lowmed {
+	color: #fde0ef;
+}
+td.hp-med {
+	color: #f7f7f7;
+}
+td.hp-medhigh {
+	color: #e6f5d0;
+}
+td.hp-high {
+	color: #a1d76a;
 }
 td.button {
 	text-align: center;
@@ -167,7 +182,6 @@ class Roster {
   }
 
   reduceHP(name, id, amount) {
-    console.log(unit.name + unit.id);
     for(unit of this.units) {
       if(unit.name === name && unit.id == id) {
         unit.reduceHP(amount);
@@ -255,6 +269,14 @@ class Roster {
 
 var roster = new Roster();
 
+function hpLevel(full, current) {
+  var ratio = current / full
+  if(ratio <= 0.2) return 'low';
+  else if(ratio > 0.2 && ratio <= 0.4) return 'lowmed';
+  else if(ratio > 0.4 && ratio <= 0.6) return 'med';
+  else if(ratio > 0.6 && ratio <= 0.8) return 'medhigh';
+  else return 'high';
+}
 
 function updateTable() {
 	document.getElementById("figures").innerHTML = "";
@@ -272,7 +294,7 @@ function updateTable() {
       document.getElementById("figures").innerHTML +=
       "<tr class='row"+r%2+" "+(unit.hp===0? "dead" : "alive")+"'>"+
       "<td class='name'><button class='delete' onclick=\"removeUnit('"+unit.name+"', '"+unit.id+"')\"><img src='trash-can.png'/></button> " + (roster.isUnique(unit)? unit.name : unit.uniqueName) + "</td>"+
-			"<td class='hp'>" + unit.hp + " HP</td>"+
+			"<td class='hp hp-"+hpLevel(unit.fullHP, unit.hp)+"'>" + unit.hp + " HP</td>"+
 			"<td class='button'><button onclick=\"reduceHP('"+unit.name+"', '"+unit.id+"', -1)\"><img src='health-increase.png'/></button></td>" +
 			"<td class='button'><button onclick=\"reduceHP('"+unit.name+"', '"+unit.id+"', 1)\"><img src='health-decrease.png'/></button></td>" +
 			"</tr>";
