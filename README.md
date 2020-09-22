@@ -1,5 +1,3 @@
-
-
 # Simple damage tracker for boardgames
 Use this tracking to add the roster of members of your favorite warband. The goal is to keep it simple. Currently works best for games where units have low HP.
 
@@ -26,3 +24,5 @@ Example roster:
 This software is licensed under GNU GPL v3.
 
 Icons by [Game-Icons.net](https://game-icons.net/) CC BY 3.0
+
+Example in figure based on a warband from Warcry by Games Workshop, copyright is theirs. This software is not affiliated with any game, brand or publisher.
