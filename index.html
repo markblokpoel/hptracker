@@ -328,6 +328,20 @@ function addCharacter(name, hp, group) {
   updateTable();
 }
 
+function importBattleScribeRoster(importText) {
+  var regex1 = new RegExp('Profiles\:');
+  var characterStrings = importText.split(regex1);
+  for(characterString of characterStrings) {
+    if(!characterString.startsWith(" ++ Open ")) {
+      var profile = characterString.split(new RegExp(':'));
+      var name = profile[0].substring(3,profile[0].length);
+      var hp = profile[4].split(new RegExp('[ \.a-zA-Z]'))[0];
+      addCharacter(name, hp, " default");
+    }
+  }
+
+}
+
 function removeUnit(name, id) {
   roster.removeUnit(name, id);
   updateTable();
@@ -387,6 +401,14 @@ function resetHP() {
 		</form>
 	</tr>
 	</tbody>
+  <tbody>
+    <form onsubmit="return false">
+      <tr>
+        <th class=name colspan="3"><input id="battleScribe" placeholder="**BETA** BattleScribe, requires Custom Text with Inline profiles." /></th>
+        <th class="button" colspan="1"><button class="add" onclick="importBattleScribeRoster(document.getElementById('battleScribe').value)" type="submit"><img src='up-card.png'/></button></th>
+      </tr>
+    </form>
+  </tbody>
 	</table>
 
 	<script>
@@ -419,7 +441,7 @@ function resetHP() {
 </div>
 
 <div class="center">
-	<p>v0.2.4</p><p>Copyright Mark Blokpoel. Icons by <a href="https://game-icons.net/">https://game-icons.net/</a>
+	<p>v0.2.5</p><p>Copyright Mark Blokpoel. Icons by <a href="https://game-icons.net/">https://game-icons.net/</a>
 	<a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
 </div>
 </body>
