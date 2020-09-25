@@ -329,15 +329,23 @@ function addCharacter(name, hp, group) {
 }
 
 function importBattleScribeRoster(importText) {
-  var regex1 = new RegExp('Profiles\:');
+  var regex1 = new RegExp('\[[0-9]*pts\]|[0-9]\ \ |[\+]\ ');
   var characterStrings = importText.split(regex1);
-  for(characterString of characterStrings) {
-    if(!characterString.startsWith(" ++ Open ")) {
-      var profile = characterString.split(new RegExp(':'));
-      var name = profile[0].substring(3,profile[0].length);
-      var hp = profile[4].split(new RegExp('[ \.a-zA-Z]'))[0];
-      addCharacter(name, hp, " default");
-    }
+  for(i = 0; i < characterStrings.length; i += 1) {
+      var string = characterStrings[i];
+      // console.log(string);
+      if(string.startsWith(" . Model")) {
+          var name = characterStrings[i-1];
+          var hp = string.match(new RegExp('Wounds:[0-9]*'))[0];
+          hp = hp.substring(7, hp.length);
+          addCharacter(name, hp, " default");
+      }
+      // var hp = characterStrings[i].split(new RegExp('Wounds:'))[1];//.split(new RegExp('[.\ a-zA-Z]'))[0];
+
+      // var profile = characterString.split(new RegExp(':'));
+      // var name = profile[0].substring(3,profile[0].length);
+      // var hp = profile[4].split(new RegExp('[ \.a-zA-Z]'))[0];
+      //
   }
 
 }
