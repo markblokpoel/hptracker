@@ -3,390 +3,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/png" href="favicon.png">
 <title>Damage Tracker</title>
-<style>
-body {
-	background-color: #000;
-	color: #fff;
-}
-
-.center {
-  margin: auto;
-  width: 50%;
-  text-align: center;
-}
-
-a {
-	color: #fff;
-}
-
-@media only screen and (max-width: 800px) {
-
-  .center {
-	  margin: auto;
-	  width: 100%;
-	}
-}
-table {
-	width: 100%;
-	border-collapse: collapse;
-}
-tr.row0 {
-}
-tr.row1 {
-	background-color: #333;
-}
-tr.dead {
-  opacity: 0.2;
-}
-tr.alive {
-  opacity: 1.0;
-}
-td {
-	font: small-caps bold 1em/1.5em Georgia, serif;
-	padding-top: .5em;
-	padding-bottom: .5em;
-}
-td.name{
-	padding-right: .5em;
-	padding-left: .5em;
-}
-td.hp {
-	text-align: right;
-	padding-left: 1em;
-	padding-right: .5em;
-	padding-left: .5em;
-}
-td.hp-low {
-	color: #c51b7d;
-}
-td.hp-lowmed {
-	color: #fde0ef;
-}
-td.hp-med {
-	color: #f7f7f7;
-}
-td.hp-medhigh {
-	color: #e6f5d0;
-}
-td.hp-high {
-	color: #a1d76a;
-}
-td.button {
-	text-align: center;
-  width: 3em;
-}
-button {
-	background-color: #000;
-	border: 3px solid #fff;
-	border-radius: 1em;
-	padding: 2px;
-  vertical-align: top;
-}
-button > img {
-	width: 2em;
-	height: 2em;
-}
-button.delete {
-	background-color: transparent;
-	border: 0px;
-	padding: 0px;
-  opacity: 0.5;
-  margin-right: .25em;
-}
-button.delete > img {
-  width: 1.5em;
-  height: 1.5em;
-}
-tr.groupheader {
-  background-color: #666;
-}
-td.title {
-  text-align: center;
-}
-th > input {
-  padding: 1em 1em;
-  margin: .5em 0 0 0;
-  box-sizing: border-box;
-}
-th.name {
-  padding-top: 1em;
-}
-th.hp {
-  padding-top: 1em;
-}
-th.name > input {
-  width: 100%;
-}
-th.hp > input {
-  width: 100%;
-}
-th.group > input {
-  width: 100%;
-}
-th.title {
-	font: small-caps bold 2em/1.5em Georgia, serif;
-  text-align: center;
-}
-</style>
-<script>
-class Unit {
-  constructor(name, id, hp, group = " default") {
-    this.name = name;
-    this.id = id;
-    this.group = group;
-    this.fullHP = hp;
-    this.hp = hp;
-  }
-
-  reduceHP(amount) {
-    if(this.hp - amount >= 0)
-      this.hp -= amount;
-  }
-
-  resetHP() {
-    this.hp = this.fullHP;
-  }
-
-  get uniqueName() {
-    return this.name + " " + this.id;
-  }
-}
-
-class Roster {
-  constructor() {
-    this.units = [];
-  }
-
-  addUnit(unit) {
-    this.units.push(unit);
-  }
-
-  nextUnitId(name) {
-    var id = 1;
-    var unit;
-    for(unit of this.units) {
-      if(unit.name === name)
-        id += 1;
-    }
-    return id;
-  }
-
-  isUnique(unit) {
-    var unique = true;
-    var other;
-    for(other of this.units) {
-      if(unit != other && unit.name === other.name)
-        unique = false;
-    }
-    return unique;
-  }
-
-  reduceHP(name, id, amount) {
-    for(unit of this.units) {
-      if(unit.name === name && unit.id == id) {
-        unit.reduceHP(amount);
-      }
-    }
-  }
-
-  resetHP() {
-    for(unit of this.units)
-      unit.resetHP();
-  }
-
-  removeUnit(filterName, filterId) {
-    this.units = this.units.filter(function(unit){
-      return !(unit.name === filterName && unit.id == filterId);
-    });
-  }
-
-  removeGroup(groupName) {
-    this.units = this.units.filter(function(unit){
-      return !(unit.group === groupName);
-    });
-  }
-
-  get getUnitsByGroup() {
-    var byGroup = new Map();
-    var unit;
-    for(unit of this.units) {
-      if(byGroup.has(unit.group)) {
-        byGroup.get(unit.group).push(unit);
-      } else {
-        byGroup.set(unit.group, [unit]);
-      }
-    }
-    return byGroup;
-  }
-
-  get getUniqueGroups() {
-    var groups = [];
-    var unit;
-    for(unit of this.units) {
-      if(!groups.includes(unit.group))
-        groups.push(unit.group);
-    }
-    return groups;
-  }
-
-  get getUniqueNames() {
-    var names = [];
-    var unit;
-    for(unit of this.units) {
-      if(!names.includes(unit.name))
-        names.push(unit.name);
-    }
-    return names;
-  }
-
-  get getNames() {
-    var names = [];
-    var unit;
-    for(unit of this.units) {
-      names.push(unit.name);
-    }
-    return names;
-  }
-
-  get getHPs() {
-    var hps = [];
-    var unit;
-    for(unit of this.units) {
-      hps.push(unit.hp);
-    }
-    return hps;
-  }
-
-  get getGroups() {
-    var groups = [];
-    var unit;
-    for(unit of this.units) {
-      groups.push(unit.group);
-    }
-    return groups;
-  }
-}
-
-var roster = new Roster();
-
-function hpLevel(full, current) {
-  var ratio = current / full
-  if(ratio <= 0.2) return 'low';
-  else if(ratio > 0.2 && ratio <= 0.4) return 'lowmed';
-  else if(ratio > 0.4 && ratio <= 0.6) return 'med';
-  else if(ratio > 0.6 && ratio <= 0.8) return 'medhigh';
-  else return 'high';
-}
-
-function updateTable() {
-	document.getElementById("figures").innerHTML = "";
-  let unitsByGroup = roster.getUnitsByGroup;
-	for(group of roster.getUniqueGroups.sort()) {
-    if(!(group === " default")) {
-      document.getElementById("figures").innerHTML +=
-        "<tr class='groupheader'>"+
-        "<td class='title' colspan='5'>" +
-        "<button class='delete' onclick=\"removeGroup('"+group+"')\"><img src='trash-can.png'/></button>" +
-        group + "</td></tr>";
-    }
-    var r = 0;
-    for(unit of unitsByGroup.get(group)) {
-      document.getElementById("figures").innerHTML +=
-      "<tr class='row"+r%2+" "+(unit.hp===0? "dead" : "alive")+"'>"+
-      "<td class='name'><button class='delete' onclick=\"removeUnit('"+unit.name+"', '"+unit.id+"')\"><img src='trash-can.png'/></button> " + (roster.isUnique(unit)? unit.name : unit.uniqueName) + "</td>"+
-			"<td class='hp hp-"+hpLevel(unit.fullHP, unit.hp)+"'>" + unit.hp + " HP</td>"+
-			"<td class='button'><button onclick=\"reduceHP('"+unit.name+"', '"+unit.id+"', -1)\"><img src='health-increase.png'/></button></td>" +
-			"<td class='button'><button onclick=\"reduceHP('"+unit.name+"', '"+unit.id+"', 1)\"><img src='health-decrease.png'/></button></td>" +
-			"</tr>";
-      r += 1;
-    }
-	}
-
-  document.getElementById("names").innerHTML = "";
-  for(name of roster.getUniqueNames.sort())
-    document.getElementById("names").innerHTML += "<option value='"+name+"'>";
-
-  document.getElementById("groups").innerHTML = "";
-  for(group of roster.getUniqueGroups.sort())
-    document.getElementById("groups").innerHTML += "<option value='"+group+"'>";
-}
-
-
-function reduceHP(name, id, amount) {
-  roster.reduceHP(name, id, amount);
-  updateTable();
-}
-
-function addCharacter(name, hp, group) {
-  if(!(name === "")) {
-    if(!(group === "")) {
-      roster.addUnit(new Unit(name, roster.nextUnitId(name), hp, group));
-    } else {
-      roster.addUnit(new Unit(name, roster.nextUnitId(name), hp));
-    }
-  }
-  updateTable();
-}
-
-function importBattleScribeRoster(importText) {
-  var regex1 = new RegExp('\[[0-9]*pts\]|[0-9]\ \ |[\+]\ ');
-  var characterStrings = importText.split(regex1);
-  for(i = 0; i < characterStrings.length; i += 1) {
-      var string = characterStrings[i];
-      // console.log(string);
-      if(string.startsWith(" . Model")) {
-          var name = characterStrings[i-1];
-          var hp = string.match(new RegExp('Wounds:[0-9]*'))[0];
-          hp = hp.substring(7, hp.length);
-          addCharacter(name, hp, " default");
-      }
-      // var hp = characterStrings[i].split(new RegExp('Wounds:'))[1];//.split(new RegExp('[.\ a-zA-Z]'))[0];
-
-      // var profile = characterString.split(new RegExp(':'));
-      // var name = profile[0].substring(3,profile[0].length);
-      // var hp = profile[4].split(new RegExp('[ \.a-zA-Z]'))[0];
-      //
-  }
-
-}
-
-function removeUnit(name, id) {
-  roster.removeUnit(name, id);
-  updateTable();
-}
-
-function removeGroup(name) {
-  roster.removeGroup(name);
-  updateTable();
-}
-
-function copyToClipboard(text) {
-  const listener = function(ev) {
-    ev.preventDefault();
-    ev.clipboardData.setData('text/plain', text);
-  };
-  document.addEventListener('copy', listener);
-  document.execCommand('copy');
-  document.removeEventListener('copy', listener);
-}
-
-function copyURL() {
-	let wl = window.location;
-	var baseURL = wl.protocol+wl.host+wl.pathname;
-	copyToClipboard(baseURL + "?" + "names="+roster.getNames.map(encodeURIComponent)+"&groups="+roster.getGroups.map(encodeURIComponent)+"&hps="+roster.getHPs.map(encodeURIComponent));
-	window.alert("URL copied!");
-}
-
-function fullReset() {
-	roster = new Roster();
-  updateTable();
-}
-
-function resetHP() {
-	roster.resetHP();
-  updateTable();
-}
-</script>
+<link rel="stylesheet" href="style.css">
+<script src="hptracker.js"></script>
 </head>
 <body>
 
@@ -402,21 +20,13 @@ function resetHP() {
 		  <th class="hp" colspan="2"><input id="newHP" type="number" value="10" /></th>
     </tr><tr>
       <th class="group" colspan="2"><input id="newGroup" list="groups" placeholder="Group name..." /></th>
-		  <th class="button" colspan="2"><button class="add" onclick="addCharacter(document.getElementById('newName').value, document.getElementById('newHP').value, document.getElementById('newGroup').value)" type="submit"><img src='up-card.png'/></button></th>
+		  <th class="button" colspan="2"><button class="add" onclick="addCharacter(document.getElementById('newName').value, document.getElementById('newHP').value, document.getElementById('newGroup').value)" type="submit"><img src='meeple-plus.png'/></button></th>
     </tr>
     <datalist id="names"></datalist>
     <datalist id=groups></datalist>
 		</form>
 	</tr>
 	</tbody>
-  <tbody>
-    <form onsubmit="return false">
-      <tr>
-        <th class=name colspan="3"><input id="battleScribe" placeholder="**BETA** BattleScribe, requires Custom Text with Inline profiles." /></th>
-        <th class="button" colspan="1"><button class="add" onclick="importBattleScribeRoster(document.getElementById('battleScribe').value)" type="submit"><img src='up-card.png'/></button></th>
-      </tr>
-    </form>
-  </tbody>
 	</table>
 
 	<script>
@@ -428,19 +38,21 @@ function resetHP() {
 		var hps = searchParams.get('hps').split(',').map(Number)
 		if(names.length == hps.length && hps.length == groups.length) {
 			for(i in names) {
-				addCharacter(names[i], hps[i], groups[i]);
+				roster.addCharacter(names[i], hps[i], groups[i]);
 			}
 		}
 	}
+	updateTable();
 	</script>
 	&nbsp;
 
 	<table class="ctable">
 	<tbody>
 	<tr>
-		<th class="button"><button class="add" onclick="fullReset()"><img src='scroll-unfurled.png'/></button></th>
-		<th class="button"><button class="add" onclick="resetHP()"><img src='anticlockwise-rotation.png'/></button></th>
-		<th class="button"><button class="add" onclick="copyURL()"><img src='wireframe-globe.png'/></button></th>
+		<th class="button"><button class="add" onclick="fullReset()"><img src='files.png'/></button></th>
+		<th class="button"><button class="add" onclick="resetHP()"><img src='cycle.png'/></button></th>
+		<th class="button"><button class="add" onclick="window.location.href = 'import.html';"><img src='load.png'/></button></th>
+		<th class="button"><button class="add" onclick="copyURL()"><img src='save.png'/></button></th>
 		<th class="button"><button class="add" onclick="window.location.href='https://github.com/markblokpoel/hptracker'"><img src='help.png'/></button></th>
 
 	</tr>
@@ -449,7 +61,7 @@ function resetHP() {
 </div>
 
 <div class="center">
-	<p>v0.2.5</p><p>Copyright Mark Blokpoel. Icons by <a href="https://game-icons.net/">https://game-icons.net/</a>
+	<p>v0.3.0</p><p>Copyright Mark Blokpoel. Icons by <a href="https://game-icons.net/">https://game-icons.net/</a>
 	<a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
 </div>
 </body>

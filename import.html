@@ -1,0 +1,67 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>Damage Tracker - Import</title>
+<link rel="stylesheet" href="style.css">
+<script src="hptracker.js"></script>
+</head>
+<body>
+
+<div class="center">
+	<table class="ctable">
+	<tbody><tr><th colspan="2" class="title">Import</th></tr></tbody>
+	  <tbody>
+		<form onsubmit="return false">
+		  <tr><td colspan="2" align="center">!! Import feature is in beta. !!</td></tr>
+		  <tr>
+			<td>
+				<label for="importSource">Select source:</label>
+				<select id="importSource" name="source" selected="battlescribe">
+				  <option value="battlescribe">BattleScribe</option>
+				  <option value="hptracker">HP Tracker</option>
+				</select>
+			</td>
+			<td class="button"><button class="add" onclick="importRoster(document.getElementById('importText').value, document.getElementById('importSource').value)" type="submit"><img src='load.png'/></button></td>
+		  </tr>
+		  <tr>
+			<td colspan="2"><textarea id="importText" class="import"></textarea></td>
+			
+		  </tr>
+		</form>
+	  </tbody>
+	</table>
+
+	<script>
+	let searchParams = new URLSearchParams(window.location.search)
+
+	if(searchParams.has('names') && searchParams.has('groups') && searchParams.has('hps')) {
+		var names = searchParams.get('names').split(',')
+    var groups = searchParams.get('groups').split(',')
+		var hps = searchParams.get('hps').split(',').map(Number)
+		if(names.length == hps.length && hps.length == groups.length) {
+			for(i in names) {
+				addCharacter(names[i], hps[i], groups[i]);
+			}
+		}
+	}
+	</script>
+	&nbsp;
+
+	<table class="ctable">
+	<tbody>
+	<tr>
+		<th class="button"><button class="add" onclick="window.location.href = 'index.html';"><img src='fast-backward-button.png'/></button></th>
+		<th class="button"><button class="add" onclick="window.location.href='https://github.com/markblokpoel/hptracker'"><img src='help.png'/></button></th>
+
+	</tr>
+	</tbody>
+	</table>
+</div>
+
+<div class="center">
+	<p>v0.3.0</p><p>Copyright Mark Blokpoel. Icons by <a href="https://game-icons.net/">https://game-icons.net/</a>
+	<a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
+</div>
+</body>
+</html>
